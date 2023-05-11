@@ -78,7 +78,7 @@ variable "vsphere_vm_default_data_disk_size" {
 
 
 variable "vsphere_vm_multi_cluster" {
-  description = "Value indicating whether to create one monolitc VM, or whether we are intending to have VM(s) for each cluster."
+  description = "Value indicating whether to create one monolithic VM in which all three clusters will run, or whether clusters will be separated out into their own VM(s)."
   type        = bool
   default     = false
 }
