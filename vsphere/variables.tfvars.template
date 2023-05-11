@@ -1,0 +1,15 @@
+vsphere_datacenter = ""
+
+vsphere_datastore = ""
+
+vsphere_compute_cluster = ""
+
+vsphere_network = ""
+
+vsphere_vm_name = ""
+
+vsphere_vm_folder = ""
+
+vsphere_vm_number_cluster = 1
+
+vsphere_vm_multi_cluster = false
