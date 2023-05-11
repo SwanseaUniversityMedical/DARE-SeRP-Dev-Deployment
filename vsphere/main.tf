@@ -9,16 +9,36 @@ terraform {
 
 locals {
   create_groups = (var.vsphere_vm_multi_cluster == true ? toset(["mgmt", "mon", "work"]) : toset(["all"]))
-  num_vms       = (var.vsphere_vm_multi_cluster == true ? range(1, var.vsphere_vm_number_cluster + 1) : [1])
+  num_vms       = (var.vsphere_vm_multi_cluster == true ? range(1, var.vsphere_vm_default_number_cluster + 1) : [1])
 
-  vm_list = distinct(flatten([
+  vm_list_def = distinct(flatten([
     for group in local.create_groups : [
       for vmn in local.num_vms : {
-        group  = group
-        vm_ref = vmn
+        group     = group
+        vm_ref    = vmn
+        cpu       = var.vsphere_vm_default_num_cpu
+        memory    = var.vsphere_vm_default_memory
+        os_disk   = var.vsphere_vm_default_os_disk_size
+        data_disk = var.vsphere_vm_default_data_disk_size
       }
     ]
   ]))
+
+  vm_list_cr = flatten([
+    for group, group_data in var.vsphere_vm_multi_cluster_custom_resource_defs : [
+      for vmn in range(1, group_data["num_vms"] + 1) : {
+        group     = group
+        vm_ref    = vmn
+        cpu       = group_data["cpu"]
+        memory    = group_data["memory"]
+        os_disk   = group_data["os_disk"]
+        data_disk = group_data["data_disk"]
+      }
+    ]
+  ])
+
+  vm_list = (var.vsphere_vm_multi_cluster == true && var.vsphere_vm_multi_cluster_customise_resources == true ? local.vm_list_cr : local.vm_list_def)
+
 }
 
 provider "vsphere" {
@@ -48,28 +68,27 @@ data "vsphere_network" "network" {
 }
 
 resource "vsphere_virtual_machine" "vm" {
-  for_each             = { for item in local.vm_list : "${item.group}.${item.vm_ref}" => item }
-  name                 = "${var.vsphere_vm_name}-${each.value.group}-${each.value.vm_ref}"
-  folder               = var.vsphere_vm_folder
-  resource_pool_id     = data.vsphere_compute_cluster.cluster.resource_pool_id
-  datastore_id         = data.vsphere_datastore.datastore.id
-  num_cpus             = 32
-  memory               = 64000
-  guest_id             = "ubuntu64Guest"
-  sync_time_with_host  = true
-  tools_upgrade_policy = upgradeAtPowerCycle
+  for_each            = { for item in local.vm_list : "${item.group}.${item.vm_ref}" => item }
+  name                = "${var.vsphere_vm_name}-${each.value.group}-${each.value.vm_ref}"
+  folder              = var.vsphere_vm_folder
+  resource_pool_id    = data.vsphere_compute_cluster.cluster.resource_pool_id
+  datastore_id        = data.vsphere_datastore.datastore.id
+  num_cpus            = each.value.cpu
+  memory              = each.value.memory
+  guest_id            = "ubuntu64Guest"
+  sync_time_with_host = true
 
   network_interface {
     network_id = data.vsphere_network.network.id
   }
   disk {
     label            = "disk0"
-    size             = 70
+    size             = each.value.os_disk
     thin_provisioned = false
   }
   # disk {
   #   label            = "disk1"
-  #   size             = 100
+  #   size             = each.value.data_disk
   #   unit_number      = 1
   #   thin_provisioned = true
   # }
