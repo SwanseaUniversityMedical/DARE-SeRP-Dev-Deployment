@@ -1,0 +1,34 @@
+
+appTeleport:
+  enabled: true
+  address: https://kubernetes.default.svc
+  namespace: argocd
+  argocd:
+    namespace: argocd
+    project: default
+
+  source:
+    repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+    chart: teleport
+    # renovate: datasource=helm depName=teleport registryUrl=https://harbor.ukserp.ac.uk/chartrepo/dare
+    targetRevision: 1.0.6
+
+#  values:
+#
+#    global:
+#      namespacePrefix: dare
+#      application:
+#        address: https://kubernetes.default.svc
+#        argocd:
+#          namespace: argocd
+#          project: default
+#      management:
+#        address: https://kubernetes.default.svc
+#        argocd:
+#          namespace: argocd
+#          project: default
+#      monitoring:
+#        address: https://kubernetes.default.svc
+#        argocd:
+#          namespace: argocd
+#          project: default

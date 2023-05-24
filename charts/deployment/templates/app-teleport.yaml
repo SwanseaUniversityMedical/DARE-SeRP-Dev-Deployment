@@ -1,0 +1,31 @@
+{{- if .Values.appTeleport.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-teleport
+  namespace: {{ .Values.appTeleport.argocd.namespace }}
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: {{ .Values.appTeleport.namespace }}
+    server: {{ .Values.appTeleport.address }}
+  project: {{ .Values.appTeleport.argocd.project }}
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:  
+    - CreateNamespace=true
+  source:
+    {{- .Values.appTeleport.source | toYaml | nindent 4 }}
+    helm:
+      valueFiles:
+        - values.yaml
+      {{- if .Values.appTeleport.values }}
+      values: |
+        {{- .Values.appTeleport.values | toYaml | nindent 8 }}
+      {{- end }}
+{{- end }}
