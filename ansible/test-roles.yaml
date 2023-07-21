@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+
+#  roles:
+#    - dare.common.k3s_bootstrap

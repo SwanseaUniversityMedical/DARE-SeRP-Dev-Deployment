@@ -1,0 +1,4 @@
+collections:
+  - name: dare.common
+    source: git+https://github.com/SwanseaUniversityMedical/DARE-Teleport.git#/ansible,DARE-Teleport-Ansible-v1.0.0
+    type: git
