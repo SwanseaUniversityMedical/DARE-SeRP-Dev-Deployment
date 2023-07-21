@@ -1,9 +1,5 @@
 ---
-- hosts: all
-  environment:
-    HTTP_PROXY: http://192.168.10.15:8080
-    HTTPS_PROXY: http://192.168.10.15:8080
-    NO_PROXY: 127.0.0.1, localhost, 192.168.0.0/16, 192.168.49.2
+- hosts: localhost
 
-  roles:
-    - dare.common.k3s_bootstrap
+#  roles:
+#    - dare.common.k3s_bootstrap
