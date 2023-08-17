@@ -9,7 +9,7 @@ appTeleport:
   source:
     repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
     chart: teleport
-    targetRevision: 1.4.1
+    targetRevision: 1.4.2
 
   values:
     global:
