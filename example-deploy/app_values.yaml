@@ -169,8 +169,8 @@ appTeleport:
           tag: "main-0e0bfa97"
 
         minio:
-          accessKey:
-          secretKey:
+          accessKey: 06LVN2MwcfLzsFr7BZ
+          secretKey: SrOMOsnLa8gTHWvEUk3hNxZP
 
         mysql:
           architecture: replication
