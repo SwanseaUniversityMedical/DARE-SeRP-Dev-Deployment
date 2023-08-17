@@ -91,7 +91,7 @@ appTeleport:
       values:
         image:
           repository: harbor.ukserp.ac.uk/dare/trino
-          tag: "1.2.0"
+          tag: "1.2.1"
 
         server:
           workers: 2
