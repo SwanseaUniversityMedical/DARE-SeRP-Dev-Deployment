@@ -173,9 +173,6 @@ appTeleport:
           metrics:
             enabled: false
 
-        nodeSelector:
-          hiru.io/storage-tier: "0A"
-
         env: 
           - name: makeit
             value: work
