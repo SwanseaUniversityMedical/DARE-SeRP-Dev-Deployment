@@ -96,8 +96,8 @@ appTeleport:
         secretAnnotations:
           vault.hashicorp.com/agent-inject: 'true'
           vault.hashicorp.com/role: 'dev'
-          vault.hashicorp.com/agent-inject-secret-trino.env: 'kvv2/data/dev/dare_teleport/trino'
-          vault.hashicorp.com/agent-inject-template-trino.env: |
+          vault.hashicorp.com/agent-inject-secret-minio.env: 'kvv2/data/dev/dare_teleport/trino'
+          vault.hashicorp.com/agent-inject-template-minio.env: |
             {{ with secret "kvv2/data/dev/dare_teleport/trino " -}}
             export trinoremote_username="{{ .Data.data.username }}"
             export trinoremote_password="{{ .Data.data.password }}"
