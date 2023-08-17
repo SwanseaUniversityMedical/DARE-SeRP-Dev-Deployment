@@ -20,7 +20,7 @@ spec:
     - PruneLast=true # Allow the ability for resource pruning to happen as a final, implicit wave of a sync operation
   sources:
     - repoURL: git@github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment
-      targetRevision: HEAD
+      targetRevision: feat_worked_argo_example
       path: charts/deployment
       helm:
         valueFiles:
@@ -28,5 +28,5 @@ spec:
         version: v3
 
     - repoURL: git@github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment
-      targetRevision: HEAD
+      targetRevision: feat_worked_argo_example 
       ref: values
