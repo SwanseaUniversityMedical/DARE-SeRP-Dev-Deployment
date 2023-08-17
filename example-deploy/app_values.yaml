@@ -60,6 +60,8 @@ appTeleport:
           defaultUrl: "/lab"
           extraEnv:
             JUPYTERHUB_SINGLEUSER_APP: "jupyter_server.serverapp.ServerApp"
+            NEXUS_HTTP_SCHEME: "http"
+            NEXUS_PROXY_ADDR: "192.168.7.56:8081"
           profileList:
           - display_name: "basic image"
             kubespawner_override:
