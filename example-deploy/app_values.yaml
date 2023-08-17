@@ -95,6 +95,9 @@ appTeleport:
 
         server:
           workers: 2
+          config:
+            spillToDisk:
+              enabled: false
 
         additionalCatalogs:
           minio: |
