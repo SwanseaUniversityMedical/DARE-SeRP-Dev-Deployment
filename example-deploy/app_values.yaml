@@ -198,7 +198,7 @@ appTeleport:
           pools:
             - servers: 2
               name: pool-0
-              volumesPerServer: 1
+              volumesPerServer: 2
               size: 50Gi 
               storageClassName: ceph-block
 
