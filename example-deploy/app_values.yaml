@@ -93,6 +93,16 @@ appTeleport:
           repository: harbor.ukserp.ac.uk/dare/trino
           tag: "1.2.1"
 
+      secretAnnotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'dev'
+        vault.hashicorp.com/agent-inject-secret-trino.env: 'kvv2/data/dev/dare_teleport/trino'
+        vault.hashicorp.com/agent-inject-template-trino.env: |
+          {{ with secret "kvv2/data/dev/dare_teleport/trino " -}}
+          export trinoremote_username="{{ .Data.data.username }}"
+          export trinoremote_password="{{ .Data.data.password }}"
+          {{- end }}
+
         server:
           workers: 2
           config:
@@ -127,8 +137,8 @@ appTeleport:
           remotetrino: |
             connector.name = trino
             connection-url=jdbc:trino://trino.feasability.sail.pk.serp.ac.uk/tpcds/sf3000
-            connection-user=alexandra.lee
-            connection-password=${ENV:remotetrinopassword}
+            connection-user=${ENV:trinoremote_username}
+            connection-password=${ENV:trinoremote_password}
             join-pushdown.enabled=true
             join-pushdown.strategy=EAGER
             unsupported-type-handling=CONVERT_TO_VARCHAR
