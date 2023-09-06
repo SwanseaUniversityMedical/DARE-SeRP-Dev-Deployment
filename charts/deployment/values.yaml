@@ -11,7 +11,7 @@ appTeleport:
     repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
     chart: teleport
     # renovate: datasource=helm depName=teleport registryUrl=https://harbor.ukserp.ac.uk/chartrepo/dare
-    targetRevision: 1.0.6
+    targetRevision: 1.4.2
 
 #  values:
 #
