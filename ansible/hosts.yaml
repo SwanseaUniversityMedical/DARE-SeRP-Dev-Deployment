@@ -16,6 +16,8 @@ mgmt:
     k3s_deploy_nexus: true
     k3s_deploy_minioop: false
 
+    k3s_lead_control_node: true
+
     k3s_server_environment:
     - key: KUBECONFIG
       value: '/root/.kube/config'
