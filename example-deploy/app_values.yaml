@@ -1,10 +1,10 @@
 appTeleport:
   enabled: true
   address: https://kubernetes.default.svc
-  namespace: serp-sail-teleport
+  namespace: serp-example-teleport
   argocd:
     namespace: hiru-mgmt-argocd
-    project: serp-sail-teleport
+    project: serp-example-teleport
 
   source:
     repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
@@ -17,18 +17,18 @@ appTeleport:
       application:
         address: https://kubernetes.default.svc
         argocd:
-          namespace: serp-sail-teleport
-          project: serp-sail-teleport
+          namespace: serp-example-teleport
+          project: serp-example-teleport
       management:
         address: https://kubernetes.default.svc
         argocd:
-          namespace: serp-sail-teleport
-          project: serp-sail-teleport
+          namespace: serp-example-teleport
+          project: serp-example-teleport
       monitoring:
         address: https://kubernetes.default.svc
         argocd:
-          namespace: serp-sail-teleport
-          project: serp-sail-teleport
+          namespace: serp-example-teleport
+          project: serp-example-teleport
 
     appGuacamole:
       enabled: false
@@ -72,14 +72,13 @@ appTeleport:
           annotations:
             nginx.ingress.kubernetes.io/ssl-redirect: "true"
             nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-            nginx.ingress.kubernetes.io/rewrite-target: /
             kubernetes.io/ingress.class: "nginx-hiru"
             cert-manager.io/cluster-issuer: "ca-issuer"
           hosts:
-            - jupyterhub.dare.sail.dk.serp.ac.uk
+            - jupyterhub.dare.example.dk.serp.ac.uk
           tls:
             - hosts:
-              - jupyterhub.dare.sail.dk.serp.ac.uk
+              - jupyterhub.dare.example.dk.serp.ac.uk
               secretName: jupyterhub-chi-tls
 
 
@@ -138,7 +137,7 @@ appTeleport:
             hive.allow-drop-table=true
           remotetrino: |
             connector.name = trino
-            connection-url=jdbc:trino://trino.feasability.sail.pk.serp.ac.uk/tpcds/sf3000
+            connection-url=jdbc:trino://trino.feasability.example.pk.serp.ac.uk/tpcds/sf3000
             connection-user=${ENV:trinoremote_username}
             connection-password=${ENV:trinoremote_password}
             join-pushdown.enabled=true
@@ -148,7 +147,7 @@ appTeleport:
         ingress:
           enabled: true
           className: "nginx-hiru"
-          host: "trino.dare.sail.dk.serp.ac.uk"
+          host: "trino.dare.example.dk.serp.ac.uk"
 
         metrics:
           enabled: false
@@ -232,7 +231,7 @@ appTeleport:
             annotations: 
               cert-manager.io/cluster-issuer: ca-issuer
               nginx.ingress.kubernetes.io/proxy-body-size: 1000m
-            host: minio-api.dare.sail.dk.serp.ac.uk
+            host: minio-api.dare.example.dk.serp.ac.uk
             path: /
             pathType: Prefix
 
@@ -242,7 +241,7 @@ appTeleport:
             annotations: 
               cert-manager.io/cluster-issuer: ca-issuer
               nginx.ingress.kubernetes.io/proxy-body-size: 1000m
-            host: minio.dare.sail.dk.serp.ac.uk
+            host: minio.dare.example.dk.serp.ac.uk
             path: /
             pathType: Prefix
 
