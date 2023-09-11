@@ -1,5 +1,5 @@
 ---
 - hosts: mgmt
   roles:
-    - role: dare.common.microk8s
-    - role: dare.common.helm_install
+    - dare.common.microk8s
+    - dare.common.helm_install
