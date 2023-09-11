@@ -32,6 +32,13 @@ mgmt:
     helm_source_values_dir: "/helm_values/mgmt"
 
     k3s_helm_install:
+      metallb:
+        install_name: 'metallb'
+        install_namespace: 'networking'
+        chart_name: 'metallb'
+        chart_version: '4.4.2'
+        repo_address: 'https://charts.bitnami.com/bitnami'
+        install_values: ''
       argocd:
         install_name: 'argocd'
         install_namespace: 'argocd'
