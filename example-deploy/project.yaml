@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: serp-sail-teleport
+  name: serp-example-teleport
   namespace: hiru-mgmt-argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
