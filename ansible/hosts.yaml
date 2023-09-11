@@ -1,0 +1,102 @@
+mgmt:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    microk8s_plugins:
+      dns: true
+      ingress: true
+      cert-manager: true
+      rook-ceph: true
+
+    k3s_deploy_rookceph: false
+    k3s_deploy_metallb: true
+    k3s_deploy_opa: false
+    k3s_deploy_argo: true
+    k3s_deploy_postop: false
+    k3s_deploy_nexus: true
+    k3s_deploy_minioop: false
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    k3s_metallb_addresses: 
+      - 192.168.69.210/29
+
+  hosts:
+    mgmt_one:
+      ansible_host: '192.168.69.200'
+      ansible_user: root
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+mon:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    microk8s_plugins:
+      dns: true
+      ingress: true
+      cert-manager: true
+      rook-ceph: true
+
+    microk8s_docker_proxy: true
+    microk8s_registry_mirrors:
+      docker.io: ""
+      harbor.ukserp.ac.uk: ""
+
+    k3s_deploy_rookceph: false
+    k3s_deploy_metallb: true
+    k3s_deploy_opa: false
+    k3s_deploy_argo: false
+    k3s_deploy_postop: false
+    k3s_deploy_nexus: false
+    k3s_deploy_minioop: false
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    k3s_metallb_addresses: 
+      - 192.168.69.216/29
+
+  hosts:
+    mon_one:
+      ansible_host: '192.168.69.201'
+      ansible_user: root
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+work:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    microk8s_plugins:
+      dns: true
+      ingress: true
+      cert-manager: true
+      rook-ceph: true
+
+    microk8s_docker_proxy: true
+    microk8s_registry_mirrors:
+      docker.io: ""
+      harbor.ukserp.ac.uk: ""
+
+    k3s_deploy_rookceph: false
+    k3s_deploy_metallb: true
+    k3s_deploy_opa: false
+    k3s_deploy_argo: false
+    k3s_deploy_postop: true
+    k3s_deploy_nexus: false
+    k3s_deploy_minioop: true
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    k3s_metallb_addresses: 
+      - 192.168.69.224/29
+
+  hosts:
+    work_one:
+      ansible_host: '192.168.69.202'
+      ansible_user: root
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519

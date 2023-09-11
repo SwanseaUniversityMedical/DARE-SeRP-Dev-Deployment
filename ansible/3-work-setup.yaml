@@ -1,0 +1,5 @@
+---
+- hosts: work
+  roles:
+    - role: dare.common.microk8s
+    - role: dare.common.helm_install
