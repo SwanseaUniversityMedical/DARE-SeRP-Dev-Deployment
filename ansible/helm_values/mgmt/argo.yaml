@@ -1,0 +1,81 @@
+apiVersionOverrides:
+  certmanager: "cert-manager.io/v1"
+
+createAggregateRoles: true
+
+server:
+  extraArgs:
+    - --insecure
+
+configs:
+  params:
+    server:
+      insecure: true
+
+    application.namespaces: '*'
+    
+  cm:
+    create: true
+
+    admin:
+      enabled: true
+
+    kustomize.buildOptions: |
+      --enable-helm
+
+    resource.customizations: |
+      argoproj.io/Application:
+        health.lua: |
+          hs = {}
+          hs.status = "Progressing"
+          hs.message = ""
+          if obj.status ~= nil then
+            if obj.status.health ~= nil then
+              hs.status = obj.status.health.status
+              if obj.status.health.message ~= nil then
+                hs.message = obj.status.health.message
+              end
+            end
+          end
+          return hs
+
+      cert-manager.io/Certificate:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+
+          hs.status = "Progressing"
+          hs.message = "Waiting for certificate"
+          return hs
+
+      ignoreDifferences: 
+        all: |
+          jqPathExpressions:
+          - 'spec.containers[]?.securityContext.allowPrivilegeEscalation'
+          - 'spec.initContainers[]?.securityContext.allowPrivilegeEscalation'
+          - 'spec.containers[]?.securityContext.capabilities.drop'
+          - 'spec.automountServiceAccountToken'
+          - 'automountServiceAccountToken'
+
+    resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
+      jqPathExpressions:
+      - '.webhooks[]?.clientConfig.caBundle'
+
+    resource.customizations.ignoreDifferences.apiextensions.k8s.io_CustomResourceDefinition: |
+      jsonPointers:
+      - /spec/conversion/webhook/clientConfig/caBundle

@@ -23,6 +23,28 @@ mgmt:
     k3s_metallb_addresses: 
       - 192.168.69.210/29
 
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+
+    helm_source_values_dir: "/helm_values/mgmt"
+
+    k3s_helm_install:
+      argocd:
+        install_name: 'argocd'
+        install_namespace: 'argocd'
+        chart_name: 'argo-cd'
+        chart_version: '5.39.0'
+        repo_address: 'https://argoproj.github.io/argo-helm'
+        install_values: 'argo.yaml'
+      nexus:
+        install_name: 'nexus'
+        install_namespace: 'nexus'
+        chart_name: 'nexus-repository-manager'
+        chart_version: '58.1.0'
+        repo_address: 'https://sonatype.github.io/helm3-charts/'
+        install_values: 'nexus.yaml'
+
   hosts:
     mgmt_one:
       ansible_host: '192.168.69.200'

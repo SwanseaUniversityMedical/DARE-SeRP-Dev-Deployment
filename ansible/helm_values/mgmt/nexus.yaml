@@ -1,0 +1,36 @@
+nexus:
+  docker:
+    enabled: true
+    registries:
+      - host: chart.local
+        port: 5000
+        
+  properties:
+    override: true
+    data:
+      nexus.scripts.allowCreation: true
+  securityContext:
+    runAsUser: 200
+    runAsGroup: 200
+    fsGroup: 200
+    fsGroupChangePolicy: "OnRootMismatch"
+
+service:
+  type: LoadBalancer
+
+image:
+  repository: klo2k/nexus3
+  tag: 3.43.0
+
+
+deployment:
+  initContainers:
+    # Make sure 'etc' dir exists inside 'nexus-data' with the right group owner,
+    # before Kubernetes tries to mount to it as root
+    - name: ensure-nexus-data-permissions
+      image: busybox:1.33
+      imagePullPolicy: Always
+      command: ["mkdir", "-p", "/nexus-data/etc"]
+      volumeMounts:
+        - name: nexus-repository-manager-data
+          mountPath: /nexus-data
