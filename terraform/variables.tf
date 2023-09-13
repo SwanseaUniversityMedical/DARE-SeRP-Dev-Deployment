@@ -122,3 +122,21 @@ variable "vsphere_vm_multi_cluster_custom_resource_defs" {
     }
   }
 }
+
+variable "public_key_1" {
+  description = "SSH public key to drop on the VM"
+  type        = string
+  default     = ""
+}
+
+variable "public_key_2" {
+  type    = string
+  default = ""
+}
+
+variable "ssh_username" {
+  description = "Name of the user to add the public key to"
+  type        = string
+  default     = "root"
+  sensitive   = true
+}

@@ -1,0 +1,10 @@
+global:
+  externalVaultAddr: http://192.168.69.211:8200
+  tlsDisable: true
+  
+injector:
+  enabled: true
+  replicas: 1
+
+csi:
+  enabled: true

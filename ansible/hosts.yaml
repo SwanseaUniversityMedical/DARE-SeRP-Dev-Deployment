@@ -1,0 +1,71 @@
+mgmt:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
+
+  hosts:
+    mgmt_one:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.69.200'
+      ansible_user: root
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+mon:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
+    
+  hosts:
+    mon_one:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.69.201'
+      ansible_user: root
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+work:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
+
+  hosts:
+    work_one:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.69.202'
+      ansible_user: root
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+
+first:
+  vars:
+    ansible_user: 'hiru'
+  hosts:
+    manvm:
+      ansible_host: '192.168.69.200'
+    monvm:
+      ansible_host: '192.168.69.201'
+    workvm:
+      ansible_host: '192.168.69.202'
