@@ -1,5 +1,57 @@
 ---
 - hosts: work
+  vars:
+    microk8s_plugins:
+      dns: true
+      ingress: true
+      cert-manager: true
+      hostpath-storage: true
+
+    microk8s_docker_proxy: false
+
+    k3s_deploy_rookceph: false
+    k3s_deploy_metallb: true
+    k3s_deploy_opa: false
+    k3s_deploy_argo: false
+    k3s_deploy_postop: true
+    k3s_deploy_nexus: false
+    k3s_deploy_minioop: true
+    k3s_deploy_vault: true
+    k3s_deploy_extra_manifests: true
+
+    k3s_metallb_addresses: 
+      - 192.168.69.224/29
+
+    create_argocd_admin_sa: true
+    cluster_certs_output_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/work/"
+
+    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/helm_values/work/"
+    teleport_chart_directory: "../charts/deployment"
+    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/extra_manifests/work/'
+
+    k3s_helm_install:
+      metallb:
+        install_name: 'metallb'
+        install_namespace: 'networking'
+        chart_name: 'metallb'
+        chart_version: '4.4.2'
+        repo_address: 'https://charts.bitnami.com/bitnami'
+        install_values: ''
+      postgres_operator:
+        install_name: 'postgres-operator'
+        install_namespace: 'postgres-operator'
+        chart_name: 'postgres-operator'
+        chart_version: '1.10.0'
+        repo_address: 'https://opensource.zalando.com/postgres-operator/charts/postgres-operator'
+        install_values: 'postgres-operator.yaml'
+      vault:
+        install_name: 'vault'
+        install_namespace: 'vault'
+        chart_name: 'vault'
+        chart_version: '0.24.1'
+        repo_address: 'https://helm.releases.hashicorp.com'
+        install_values: 'vault.yaml'
+        
   roles:
-    - role: dare.common.microk8s
-    - role: dare.common.helm_install
+    - dare.common.microk8s
+    - dare.common.helm_install

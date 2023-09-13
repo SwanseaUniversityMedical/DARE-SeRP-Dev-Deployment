@@ -1,0 +1,32 @@
+---
+- name: basic first vm setup
+  hosts: first
+  vars_prompt:
+    - name: password
+      prompt: "What is the password?"
+
+  gather_facts: no
+  vars:
+    ssh_keys: 
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC1ryE7vNqePXarSS0u1deugObskFSCdBd1EoPJo3iXbvsVhkGxjJi6TNR4r86xDvnG07S4D81cBoaFvUYrWpSsWh2/0OiIUOpjGT7LYB+3+P2fsau6FFDv5BK7IIMDYoFjf061dlY2ztE/nWEeYzrFO8D/dcSK5IcoN7IHo1H1uEBtJY2qPSirnqcZwuc7jlMrLJljx01n/HX0BM3eGGwHiUumMzYMh4XDpDziUQTX8HN+314umfO4cCTj8h+aybXA/uP94uDw3OFnYtlTuXhmIkIb1NMDZoHYGmH7Ub2pWtmIO4jy0poPu6WqweI4b/zuOSTj/JL5d+wwRvDxLNUEm+XqcsHArHsOAxX1FuW3j1agU+NiV37yoZ985EB2jsgLxLJ3hCDBdRXEVCG9Q++P8B/xVNOk4oWbxq8ltVZ/a9uB9T/12lnyBXvX0Nvm+r1trR7bXR8BhrQWyyywWZxvR1WPZI3DpFQhGnPmXohN7owfkbPQKrlxHk4xDpohTTj4DW4fItOXl75J0d38iRW1qiOML0tsDBiVG71NkESCT7D6Q/l5b5ueJy7LPZTE8MMSbgYRVAz5njyNmjYRjDprwhC92vFAaP05f7FUM0M3wvtRASNRJcUBFK71Y1wkhwMnJqrT2Ex/aay6RwXZxgUWDTjvVdiFeVoSJeamCUu2ew== alexandra.lee"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPLR+X7RYalEo3oBXZlHk+qoxLYqp/+E3Cn1w+zzG2YM chi\\alexandra.lee@DesktopALVirt"
+  
+  tasks:
+    - name: update ansible credentials
+      set_fact:
+        ansible_password: "{{ password }}"
+        ansible_become_password: "{{ password }}"
+      no_log: true
+
+    - name: put ssh keys as root user
+      shell: "echo '{{ item }}' >> /root/.ssh/authorized_keys"
+      become: true
+      with_items: "{{ ssh_keys }}" 
+
+    - name: delete broken apt sources file
+      shell: "rm /etc/apt/sources.list"
+      become: true
+
+    - name: make empty apt sources file
+      shell: "touch /etc/apt/sources.list"
+      become: true

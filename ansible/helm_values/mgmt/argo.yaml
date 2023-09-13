@@ -6,6 +6,8 @@ createAggregateRoles: true
 server:
   extraArgs:
     - --insecure
+  service:
+    type: LoadBalancer
 
 configs:
   params:

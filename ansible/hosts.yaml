@@ -2,132 +2,70 @@ mgmt:
   vars: 
     kubeconfig_file_location: "/root/.kube/"
 
-    microk8s_plugins:
-      dns: true
-      ingress: true
-      cert-manager: true
-      rook-ceph: true
-
-    k3s_deploy_rookceph: false
-    k3s_deploy_metallb: true
-    k3s_deploy_opa: false
-    k3s_deploy_argo: true
-    k3s_deploy_postop: false
-    k3s_deploy_nexus: true
-    k3s_deploy_minioop: false
-
-    k3s_lead_control_node: true
-
     k3s_server_environment:
     - key: KUBECONFIG
       value: '/root/.kube/config'
 
-    k3s_metallb_addresses: 
-      - 192.168.69.210/29
-
     proxy_env:
       http_proxy: "http://192.168.10.15:8080"
       https_proxy: "http://192.168.10.15:8080"
-
-    helm_source_values_dir: "/helm_values/mgmt"
-
-    k3s_helm_install:
-      metallb:
-        install_name: 'metallb'
-        install_namespace: 'networking'
-        chart_name: 'metallb'
-        chart_version: '4.4.2'
-        repo_address: 'https://charts.bitnami.com/bitnami'
-        install_values: ''
-      argocd:
-        install_name: 'argocd'
-        install_namespace: 'argocd'
-        chart_name: 'argo-cd'
-        chart_version: '5.39.0'
-        repo_address: 'https://argoproj.github.io/argo-helm'
-        install_values: 'argo.yaml'
-      nexus:
-        install_name: 'nexus'
-        install_namespace: 'nexus'
-        chart_name: 'nexus-repository-manager'
-        chart_version: '58.1.0'
-        repo_address: 'https://sonatype.github.io/helm3-charts/'
-        install_values: 'nexus.yaml'
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
 
   hosts:
     mgmt_one:
+      k3s_lead_control_node: true
       ansible_host: '192.168.69.200'
       ansible_user: root
-      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 
 mon:
   vars: 
     kubeconfig_file_location: "/root/.kube/"
 
-    microk8s_plugins:
-      dns: true
-      ingress: true
-      cert-manager: true
-      rook-ceph: true
-
-    microk8s_docker_proxy: true
-    microk8s_registry_mirrors:
-      docker.io: ""
-      harbor.ukserp.ac.uk: ""
-
-    k3s_deploy_rookceph: false
-    k3s_deploy_metallb: true
-    k3s_deploy_opa: false
-    k3s_deploy_argo: false
-    k3s_deploy_postop: false
-    k3s_deploy_nexus: false
-    k3s_deploy_minioop: false
-
     k3s_server_environment:
     - key: KUBECONFIG
       value: '/root/.kube/config'
 
-    k3s_metallb_addresses: 
-      - 192.168.69.216/29
-
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
+    
   hosts:
     mon_one:
+      k3s_lead_control_node: true
       ansible_host: '192.168.69.201'
       ansible_user: root
-      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 
 work:
   vars: 
     kubeconfig_file_location: "/root/.kube/"
 
-    microk8s_plugins:
-      dns: true
-      ingress: true
-      cert-manager: true
-      rook-ceph: true
-
-    microk8s_docker_proxy: true
-    microk8s_registry_mirrors:
-      docker.io: ""
-      harbor.ukserp.ac.uk: ""
-
-    k3s_deploy_rookceph: false
-    k3s_deploy_metallb: true
-    k3s_deploy_opa: false
-    k3s_deploy_argo: false
-    k3s_deploy_postop: true
-    k3s_deploy_nexus: false
-    k3s_deploy_minioop: true
-
     k3s_server_environment:
     - key: KUBECONFIG
       value: '/root/.kube/config'
 
-    k3s_metallb_addresses: 
-      - 192.168.69.224/29
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.200,192.168.69.201,192.168.69.202,192.168.69.*"
 
   hosts:
     work_one:
+      k3s_lead_control_node: true
       ansible_host: '192.168.69.202'
       ansible_user: root
-      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+      # ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+
+first:
+  vars:
+    ansible_user: 'hiru'
+  hosts:
+    manvm:
+      ansible_host: '192.168.69.200'
+    monvm:
+      ansible_host: '192.168.69.201'
+    workvm:
+      ansible_host: '192.168.69.202'

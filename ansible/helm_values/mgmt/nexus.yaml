@@ -18,11 +18,6 @@ nexus:
 service:
   type: LoadBalancer
 
-image:
-  repository: klo2k/nexus3
-  tag: 3.43.0
-
-
 deployment:
   initContainers:
     # Make sure 'etc' dir exists inside 'nexus-data' with the right group owner,

@@ -1,0 +1,4 @@
+image:
+  registry: ghcr.io
+  repository: zalando/postgres-operator
+  tag: v1.10.0

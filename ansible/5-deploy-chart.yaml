@@ -1,0 +1,39 @@
+---
+- hosts: mgmt
+  vars: 
+    argocd_namespace: argocd
+    repos:
+      - name: dare
+        url: "https://harbor.ukserp.ac.uk/chartrepo/dare"
+        username: "robot$dare-deploy-alex-tf-vms"
+        password: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjYxNjU0ODUsImlhdCI6MTY5NDYyOTQ4NSwiaXNzIjoiaGFyYm9yLXRva2VuLWRlZmF1bHRJc3N1ZXIiLCJpZCI6MTUyNDU1LCJwaWQiOjY4LCJhY2Nlc3MiOlt7IlJlc291cmNlIjoiL3Byb2plY3QvNjgvcmVwb3NpdG9yeSIsIkFjdGlvbiI6InB1bGwiLCJFZmZlY3QiOiIifSx7IlJlc291cmNlIjoiL3Byb2plY3QvNjgvaGVsbS1jaGFydCIsIkFjdGlvbiI6InJlYWQiLCJFZmZlY3QiOiIifV19.D8DIbj3jHa07Qki-_OahcCHYyY6ET6bXLE-iWA2salYj5GEJu1HC7bLPJQNLk2uALMrTU_2cIdIwr2Xa1nA5g-WjmnTLI5G547LBCLptiEUspG8YYltVQoIhDiDDS5gmAnoMOnFz-JsqAAAkhFOnZpybOMxcritwlFzmhjhlxC5qN7uPcT8RWdHntzHx6TTDygvU9gu3gyWG_qH0hUjCGee4tI8HWMpqnQ9JMKlGsIN8JXaoLiVbsU4xQpnGnayZaf-IdxEZuGeZs74VO29t0NdaJyiPScUU0oD_02kHAdzL2c7ZoTkT3VazpayPVKbcLQglvxZBu0-EnD_qfCHGuUSELRmFINrnHIaOj8plgAL6e-p4XuFQ2kAtOhDVnLjm1gUUErkwAAq96sMEjMYmVGLfVtdZi70Bk1cQqixWe8bSn1Rsx6eGQaQgb44lGT-1gMa37NRQtjM_45b-X7XQzJk7C1_nU04uWS6hNVhbfEh1DqS_pp7UgvBDwoHh30a866E-OCHXorAnF0GImHBDZO9b4r7H3j1Qc5X-zUOfEeh_WQ9und7OY94_6boAnRZ0Yq_dFXmjkzp_QQwVITQxGL2vx5bTw_TAjNRtCR8DTCU5lw07pSWAyZJPI65R1RR7Ayofa1UthwV13JQ2e98NQnx2K2OAXN6_DTxfU8ftNS0"
+        type: "helm"
+        proxy: "http://192.168.10.15:8080"
+      - name: teleport
+        type: "git"
+        url: "git@github.com:SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+        ssh_private_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/repo_key.pem"
+        # proxy: "http://192.168.10.15:8080"
+    clusters:
+      - name: mon
+        remote_host: mon_one
+        username: argocd-service-user
+        local_path_to_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/mon/mon_one.key.pem"
+        local_path_to_cert_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/mon/mon_one.pem"
+      - name: work
+        remote_host: work_one
+        username: argocd-service-user
+        local_path_to_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/work/work_one.key.pem"
+        local_path_to_cert_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/work/work_one.pem"
+    deployment_repo:
+      url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+      target_revision: "HEAD"
+      path: "charts/deployment"
+      path_to_values: "charts/deployment/values.yaml"
+    values_repo:
+      url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+      target_revision: "HEAD"
+  
+  roles: 
+    - role: dare.common.argocd_deploy
+      when: k3s_lead_control_node
