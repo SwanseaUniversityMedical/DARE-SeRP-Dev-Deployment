@@ -29,7 +29,7 @@
       url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
       target_revision: "HEAD"
       path: "charts/deployment"
-      path_to_values: "charts/deployment/values.yaml"
+      path_to_values: "ansible/microk8s_example/teleport-values.yaml"
     values_repo:
       url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
       target_revision: "HEAD"
