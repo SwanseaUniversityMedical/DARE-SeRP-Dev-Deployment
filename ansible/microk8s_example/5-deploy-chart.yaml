@@ -32,7 +32,7 @@
       path_to_values: "ansible/microk8s_example/teleport-values.yaml"
     values_repo:
       url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
-      target_revision: "fix/mk8s-teleport-values"
+      target_revision: "HEAD"
   
   roles: 
     - role: dare.common.argocd_deploy
