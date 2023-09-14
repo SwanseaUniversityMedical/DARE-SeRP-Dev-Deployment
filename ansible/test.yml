@@ -1,33 +1,7 @@
 ---
 - name: unity test
-  vars:
-    argocd_namespace: argocd
-    ssh_private_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/repo_key.pem"
-    name: mon
-    remote_host: mon_one
-    username: argocd-service-user
-    local_path_to_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/mon/mon_one.key.pem"
-    local_path_to_cert_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/mon/mon_one.pem"
   hosts: localhost
      
   tasks:
-    - name: get the kubernetes host url
-      shell: kubectl config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.server}'
-      delegate_to: "{{ remote_host }}"
-      register: raw_host_url
-
-    # cadata
-    - name: get the kubernetes CA cert
-      shell: kubectl config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 --decode
-      delegate_to: "{{ remote_host }}"
-      register: raw_ca_cert
-
-    - set_fact:
-        ca_cert: "{{ raw_ca_cert.stdout }}"
-        host_url: "{{ raw_host_url.stdout }}"
-        key_data: "{{ lookup('file', local_path_to_key_file) }}"
-        cert_data: "{{ lookup('file', local_path_to_cert_file) }}"
-
-    - name: test template
-      template: src=/home/alex/DARE-SeRP-Dev-Deployment/ansible/repotemplate.j2 dest=/home/alex/DARE-SeRP-Dev-Deployment/ansible/FFFFFF.yaml
-
+    - debug:
+        msg: "{{ playbook_dir }}"
