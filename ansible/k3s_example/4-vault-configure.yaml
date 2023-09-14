@@ -1,0 +1,32 @@
+---
+- hosts: mgmt
+  vars: 
+    vault_namespace: vault
+    vault_install_name: vault
+    vault_secret_name: vault-token-g955r
+    vault_number_key_shares: 5
+    vault_key_threshold: 3
+    vault_policy_directory: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/vault_policies/"
+    vault_config_output_folder:  "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/vault"
+
+    hosts_configure_auth:
+      - name: mon-ctrl-1
+        vault_auth_path: mon
+        roles:
+          - role_name: 'mon-dare'
+            bound_sa_names: ["*"]
+            bound_sa_namespaces: ["dare-"]
+            token_ttl: "3600"
+            token_policies: ["work"]
+      - name: work-ctrl-1
+        vault_auth_path: work
+        roles:
+          - role_name: 'work-dare'
+            bound_sa_names: ["*"]
+            bound_sa_namespaces: ["dare-"]
+            token_ttl: "3600"
+            token_policies: ["work"]
+
+  roles: 
+    - role: dare.common.vault_init_config
+      when: k3s_lead_control_node

@@ -1,0 +1,12 @@
+csi:
+  cephFSFSGroupPolicy: File
+  rbdFSGroupPolicy: File
+
+discoverDaemonUdev: null
+
+monitoring:
+  enabled: false
+
+pspEnable: true
+
+cephCommandsTimeoutSeconds: "60"

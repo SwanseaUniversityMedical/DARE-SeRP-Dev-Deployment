@@ -1,0 +1,290 @@
+mgmt:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    # k3s HA
+    corosync_bindnet_interface: "vlan69"
+    chrony_server_configs:
+      - server 192.168.10.10 iburst
+      - server 192.168.10.51 iburst
+      - server 192.168.69.54 iburst
+
+    # this will become the load-balanced IP that nodes use to join the cluster.
+    # it load balances the control nodes.
+    k3s_vip: 192.168.69.203
+    k3s_vip_port: 8443
+
+    # k3s bootstrap
+    k3s_use_unsupported_config: yes
+    lead_control_node_ip: 192.168.69.200
+
+    k3s_server:
+      flannel-backend: "none"
+      disable-network-policy: true
+      disable:
+        - traefik
+        - servicelb
+        - local-storage
+      cluster-cidr: 10.53.0.0/16 
+      service-cidr: 10.54.0.0/16
+      protect-kernel-defaults: true
+      secrets-encryption: true
+      etcd-expose-metrics: false
+      kube-apiserver-arg:
+        - 'admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml'
+        - 'audit-log-path=/var/lib/rancher/audit/audit.log'
+        - 'audit-policy-file=/var/lib/rancher/audit/audit-policy.yml'
+        - 'audit-webhook-config-file=/var/lib/rancher/audit/webhook-config.yml'
+        - 'audit-webhook-batch-max-size=10'
+        - 'audit-webhook-batch-max-wait=60s'
+        - 'audit-log-maxage=30'
+        - 'audit-log-maxbackup=10'    
+        - 'audit-log-maxsize=100'
+        - 'request-timeout=120s'
+        - 'service-account-lookup=true'
+        - 'encryption-provider-config=/etc/k3s-encryption.yaml'
+      kube-controller-manager-arg:
+        - 'terminated-pod-gc-threshold=10'
+        - 'use-service-account-credentials=true'
+      kubelet-arg:
+        - 'streaming-connection-idle-timeout=5m'
+        - 'make-iptables-util-chains=true'
+        - 'event-qps=25'
+
+    k3s_server_manifests_templates: 
+      - "{{ playbook_dir }}/k3s_server_manifests/calico.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/tigera-operator.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/runtimeclass.yaml"
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "[cidr of your k3s nodes here]"
+
+    # helm_install onwards
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/etc/rancher/k3s/k3s.yaml'
+
+  hosts:
+    mgmt-ctrl-1:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.69.200'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.69.200'
+      gpu_node: false
+    mgmt-ctrl-2:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.69.201'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.69.201'
+      gpu_node: false
+    mgmt-ctrl-3:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.69.202'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.69.202'
+      gpu_node: false
+
+mon:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    # k3s HA
+    corosync_bindnet_interface: "vlan70"
+    chrony_server_configs:
+      - server 192.168.10.10 iburst
+      - server 192.168.10.51 iburst
+      - server 192.168.69.54 iburst
+
+    # this will become the load-balanced IP that nodes use to join the cluster.
+    # it load balances the control nodes.
+    k3s_vip: 192.168.70.203
+    k3s_vip_port: 8443
+
+    # k3s bootstrap
+    k3s_use_unsupported_config: yes
+    lead_control_node_ip: 192.168.70.200
+
+    k3s_server:
+      flannel-backend: "none"
+      disable-network-policy: true
+      disable:
+        - traefik
+        - servicelb
+        - local-storage
+      cluster-cidr: 10.53.0.0/16 
+      service-cidr: 10.54.0.0/16
+      protect-kernel-defaults: true
+      secrets-encryption: true
+      etcd-expose-metrics: false
+      kube-apiserver-arg:
+        - 'admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml'
+        - 'audit-log-path=/var/lib/rancher/audit/audit.log'
+        - 'audit-policy-file=/var/lib/rancher/audit/audit-policy.yml'
+        - 'audit-webhook-config-file=/var/lib/rancher/audit/webhook-config.yml'
+        - 'audit-webhook-batch-max-size=10'
+        - 'audit-webhook-batch-max-wait=60s'
+        - 'audit-log-maxage=30'
+        - 'audit-log-maxbackup=10'    
+        - 'audit-log-maxsize=100'
+        - 'request-timeout=120s'
+        - 'service-account-lookup=true'
+        - 'encryption-provider-config=/etc/k3s-encryption.yaml'
+      kube-controller-manager-arg:
+        - 'terminated-pod-gc-threshold=10'
+        - 'use-service-account-credentials=true'
+      kubelet-arg:
+        - 'streaming-connection-idle-timeout=5m'
+        - 'make-iptables-util-chains=true'
+        - 'event-qps=25'
+
+    k3s_server_manifests_templates: 
+      - "{{ playbook_dir }}/k3s_server_manifests/calico.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/tigera-operator.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/runtimeclass.yaml"
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "[cidr of your k3s nodes here]"
+
+    # helm_install onwards
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/etc/rancher/k3s/k3s.yaml'
+
+  hosts:
+    mon-ctrl-1:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.70.200'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.70.200'
+      gpu_node: false
+    mon-ctrl-2:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.70.201'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.70.201'
+      gpu_node: false
+    mon-ctrl-3:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.70.202'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.70.202'
+      gpu_node: false
+
+work:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    # k3s HA
+    corosync_bindnet_interface: "vlan71"
+    chrony_server_configs:
+      - server 192.168.10.10 iburst
+      - server 192.168.10.51 iburst
+      - server 192.168.69.54 iburst
+
+    # this will become the load-balanced IP that nodes use to join the cluster.
+    # it load balances the control nodes.
+    k3s_vip: 192.168.71.203
+    k3s_vip_port: 8443
+
+    # k3s bootstrap
+    k3s_use_unsupported_config: yes
+    lead_control_node_ip: 192.168.71.200
+
+    k3s_server:
+      flannel-backend: "none"
+      disable-network-policy: true
+      disable:
+        - traefik
+        - servicelb
+        - local-storage
+      cluster-cidr: 10.53.0.0/16 
+      service-cidr: 10.54.0.0/16
+      protect-kernel-defaults: true
+      secrets-encryption: true
+      etcd-expose-metrics: false
+      kube-apiserver-arg:
+        - 'admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml'
+        - 'audit-log-path=/var/lib/rancher/audit/audit.log'
+        - 'audit-policy-file=/var/lib/rancher/audit/audit-policy.yml'
+        - 'audit-webhook-config-file=/var/lib/rancher/audit/webhook-config.yml'
+        - 'audit-webhook-batch-max-size=10'
+        - 'audit-webhook-batch-max-wait=60s'
+        - 'audit-log-maxage=30'
+        - 'audit-log-maxbackup=10'    
+        - 'audit-log-maxsize=100'
+        - 'request-timeout=120s'
+        - 'service-account-lookup=true'
+        - 'encryption-provider-config=/etc/k3s-encryption.yaml'
+      kube-controller-manager-arg:
+        - 'terminated-pod-gc-threshold=10'
+        - 'use-service-account-credentials=true'
+      kubelet-arg:
+        - 'streaming-connection-idle-timeout=5m'
+        - 'make-iptables-util-chains=true'
+        - 'event-qps=25'
+
+    k3s_server_manifests_templates: 
+      - "{{ playbook_dir }}/k3s_server_manifests/calico.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/tigera-operator.yaml"
+      - "{{ playbook_dir }}/k3s_server_manifests/runtimeclass.yaml"
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "[cidr of your k3s nodes here]"
+
+    # helm_install onwards
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/etc/rancher/k3s/k3s.yaml'
+
+  hosts:
+    work-ctrl-1:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.71.200'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.71.200'
+      gpu_node: false
+    work-ctrl-2:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.71.201'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.71.201'
+      gpu_node: false
+    work-ctrl-3:
+      k3s_lead_control_node: false
+      ansible_host: '192.168.71.202'
+      ansible_user: root
+      k3s_control_node: true
+      k3s_etcd_datastore: true
+      k3s_agent:
+        node-ip: '192.168.71.202'
+      gpu_node: false

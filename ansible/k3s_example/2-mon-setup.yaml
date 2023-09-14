@@ -1,0 +1,59 @@
+---
+- hosts: mon
+  vars: 
+    k3s_metallb_addresses: 
+      - 192.168.70.210/29
+
+    k3s_deploy_rookceph: true
+    k3s_deploy_metallb: true
+    k3s_deploy_opa: false
+    k3s_deploy_argo: false
+    k3s_deploy_postop: false
+    k3s_deploy_nexus: false
+    k3s_populate_nexus: false
+    k3s_deploy_minioop: false
+    k3s_deploy_vault: true
+    k3s_deploy_extra_manifests: true
+
+    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/k3s_example/helm_values/mon/"
+    teleport_chart_directory: "../charts/deployment"
+    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/k3s_example/extra_manifests/mon'
+
+    create_argocd_admin_sa: true
+    cluster_certs_output_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/mon/"
+    
+    k3s_helm_install:
+      metallb:
+        install_name: 'metallb'
+        install_namespace: 'networking'
+        chart_name: 'metallb'
+        chart_version: '4.4.2'
+        repo_address: 'https://charts.bitnami.com/bitnami'
+        install_values: ''
+      vault:
+        install_name: 'vault'
+        install_namespace: 'vault'
+        chart_name: 'vault'
+        chart_version: '0.24.1'
+        repo_address: 'https://helm.releases.hashicorp.com'
+        install_values: 'vault.yaml'
+      rook_ceph_cluster:
+        install_name: 'rook-ceph-cluster'
+        install_namespace: 'rook-ceph'
+        chart_name: 'rook-ceph-cluster'
+        chart_version: 'v1.11.4'
+        repo_address: 'https://charts.rook.io/release'
+        install_values: 'rook-ceph-cluster.yaml'
+      rook_ceph_operator:
+        install_name: 'rook-ceph'
+        install_namespace: 'rook-ceph'
+        chart_name: 'rook-ceph'
+        chart_version: 'v1.11.4'
+        repo_address: 'https://charts.rook.io/release'
+        install_values: 'rook-ceph-operator.yaml'
+
+  roles:
+    - dare.common.k3s_preflight
+    - dare.common.k3s_ha
+    - dare.common.k3s_bootstrap
+    - dare.common.helm_install
