@@ -99,7 +99,7 @@ appTeleport:
           # to the same values as in the appMinioTenant.values.secrets.accessKey and secretKey
           minio: |
             connector.name = hive
-            hive.metastore.uri = thrift://hive-metastore:9083
+            hive.metastore.uri = thrift://app-hive:9083
             hive.metastore.thrift.delete-files-on-drop=true
             hive.s3.path-style-access=true
             hive.s3.endpoint=http://minio.dare-minio-tenant.svc.cluster.local:80
@@ -111,7 +111,7 @@ appTeleport:
             hive.allow-drop-table=true
           iceberg: |
             connector.name = hive
-            hive.metastore.uri = thrift://hive-metastore:9083
+            hive.metastore.uri = thrift://app-hive:9083
             hive.metastore.thrift.delete-files-on-drop=true
             hive.s3.path-style-access=true
             hive.s3.endpoint=http://minio.dare-minio-tenant.svc.cluster.local:80
@@ -125,7 +125,7 @@ appTeleport:
           # !!! connection-password is optional !!!
           # epcc: |
           #   connector.name = trino
-          #   connection-url=jdbc:trino://trino.dare.epcc.dk.serp.ac.uk/tpcds/sf3000
+          #   connection-url=jdbc:trino://trino.dare.epcc.dk.serp.ac.uk:443/tpcds/sf3000
           #   connection-user=${ENV:trinoremote_username}
           #   connection-password=${ENV:trinoremote_password}
           #   join-pushdown.enabled=true
