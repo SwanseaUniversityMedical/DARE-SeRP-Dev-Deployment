@@ -1,6 +1,6 @@
 appTeleport:
   enabled: true
-  # deploy the top-level teleport app to the mgmt cluster
+  # deploy all apps to this cluster
   address: https://kubernetes.default.svc
   namespace: argocd
   argocd:
@@ -13,27 +13,8 @@ appTeleport:
     targetRevision: 1.5.1
 
   values:
-    global:
-      namespacePrefix: dare
-      application:
-        # app cluster kube API address
-        address: https://192.168.69.202:16443
-        argocd:
-          namespace: argocd
-          project: default
-      management:
-        address: https://kubernetes.default.svc
-        argocd:
-          namespace: argocd
-          project: default
-      monitoring:
-        # mon cluster kube API address
-        address: https://192.168.69.201:16443
-        argocd:
-          namespace: argocd
-          project: default
-
     appGuacamole:
+      # don't want Guac for this deployment
       enabled: false
 
     appJupyter:
@@ -58,6 +39,7 @@ appTeleport:
           defaultUrl: "/lab"
           extraEnv:
             JUPYTERHUB_SINGLEUSER_APP: "jupyter_server.serverapp.ServerApp"
+            # put your pip/cran proxy/mirror address in the below variables
             NEXUS_HTTP_SCHEME: "http"
             NEXUS_PROXY_ADDR: "192.168.7.56:8081"
           profileList:
@@ -84,7 +66,7 @@ appTeleport:
               enabled: false
             query:
               maxMemory: "2GB"
-              # maxmemorypernode + heapHeadroomPerNode <= coordinator|worker.jvm.maxheapsize
+              # maxmemorypernode + heapHeadroomPerNode <= coordination|worker.jvm.maxheapsize
               maxMemoryPerNode: "2GB"
             memory:
               heapHeadroomPerNode: "1GB"
@@ -150,6 +132,7 @@ appTeleport:
           #   join-pushdown.strategy=EAGER
           #   unsupported-type-handling=CONVERT_TO_VARCHAR
 
+
     appHive:
       enabled: true
       # hive needs to go into the trino namespace
@@ -207,11 +190,12 @@ appTeleport:
             name: tmp-minio-env-config
 
           pools:
+            # define your storage pool for minio
+            # this can be tricky, it may help to look at the MinIO pool size calculator
             - servers: 1
               name: pool-0
               volumesPerServer: 1
-              size: 5Gi 
-              # storageClassName: ceph-block
+              size: 50Gi 
 
           metrics:
             enabled: false
@@ -221,17 +205,21 @@ appTeleport:
 
           prometheusOperator: false
 
+    # dont deploy Vault with this chart, we deployed it with ansible
     appVault:
       enabled: false
 
+    # don't deploy OPA, not needed
     appOpa:
       enabled: false
 
+    # this app isn't complete yet
     appControl:
       enabled: false
 
+    # don't deploy Keycloak as nothing set up for oidc auth
     appKeycloak:
-      enabled: true
+      enabled: false
       namespace: keycloak
       source:
         repoURL: https://charts.bitnami.com/bitnami

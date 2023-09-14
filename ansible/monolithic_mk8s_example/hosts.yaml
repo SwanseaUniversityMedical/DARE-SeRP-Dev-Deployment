@@ -1,0 +1,18 @@
+myhostgroup:
+  vars: 
+    kubeconfig_file_location: "/root/.kube/"
+
+    k3s_server_environment:
+    - key: KUBECONFIG
+      value: '/root/.kube/config'
+
+    proxy_env:
+      http_proxy: "http://192.168.10.15:8080"
+      https_proxy: "http://192.168.10.15:8080"
+      no_proxy: "192.168.69.*"
+
+  hosts:
+    single_host:
+      k3s_lead_control_node: true
+      ansible_host: '192.168.69.200'
+      ansible_user: root

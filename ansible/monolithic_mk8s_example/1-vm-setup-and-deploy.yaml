@@ -1,0 +1,191 @@
+---
+- hosts: myhostgroup
+  vars: 
+    ##############################
+    #### dare.common.microk8s ####
+    ##############################
+
+    # plugins to enable for microk8s
+    microk8s_plugins:
+      dns: true
+      ingress: true
+      cert-manager: true
+      hostpath-storage: true
+
+    ##############################
+    ## dare.common.helm_install ##
+    ##############################
+
+    # list of cidr blocks of addresses to be used as load balancer addresses
+    k3s_metallb_addresses: 
+      - 192.168.69.210/29
+
+    # whether to deploy rook-ceph cluster and rook-ceph operator
+    # should be false for microk8s unless you have multiple disks
+    k3s_deploy_rookceph: false
+    # whether to deploy metallb. should be true if you want to have LB service types
+    k3s_deploy_metallb: true
+    # whether to deploy OPA operator. false as currently not needed
+    k3s_deploy_opa: false
+    # whether to deploy ArgoCD. Should be true.
+    k3s_deploy_argo: true
+    # whether to deploy PostgresOperator.
+    k3s_deploy_postop: true
+    # whether to deploy Sonatype Nexus3
+    k3s_deploy_nexus: true
+    # Whether to derive all chart and image sources and pre-load them into Nexus to act as a mirror
+    # Currently broken, keep set to false.
+    k3s_populate_nexus: false
+    # whether to deploy minio operator. Should be true if you want to deploy Trino and a Minio tenant.
+    k3s_deploy_minioop: true
+    # whether to deploy Vault
+    k3s_deploy_vault: true
+    # whether there are any extra manifests you want to deploy
+    k3s_deploy_extra_manifests: false
+
+    # path on the ansible controller to the folder containing the extra manifests
+    extra_manifests_folder: ""
+    # path on the ansible controller to the folder containing the helm chart override values
+    # only the values for the charts deployed by ansible (not the teleport chart)
+    helm_source_values_dir: "{{ playbook_dir }}/helm_values/"
+
+    # config block for manifests to be deployed via helm
+    k3s_helm_install:
+      metallb:
+        install_name: 'metallb'
+        install_namespace: 'networking'
+        chart_name: 'metallb'
+        chart_version: '4.4.2'
+        repo_address: 'https://charts.bitnami.com/bitnami'
+        # this can be empty if you just want to deploy with no override values
+        install_values: ''
+      argocd:
+        install_name: 'argocd'
+        install_namespace: 'argocd'
+        chart_name: 'argo-cd'
+        chart_version: '5.39.0'
+        repo_address: 'https://argoproj.github.io/argo-helm'
+        # this name needs to be the name of the argocd override values in your helm_source_values_dir
+        install_values: 'argo.yaml'
+      nexus:
+        install_name: 'nexus'
+        install_namespace: 'nexus'
+        chart_name: 'nexus-repository-manager'
+        chart_version: '58.1.0'
+        repo_address: 'https://sonatype.github.io/helm3-charts/'
+        # this name needs to be the name of the nexus override values in your helm_source_values_dir
+        install_values: 'nexus.yaml'
+      vault:
+        install_name: 'vault'
+        install_namespace: 'vault'
+        chart_name: 'vault'
+        chart_version: '0.24.1'
+        repo_address: 'https://helm.releases.hashicorp.com'
+        # this name needs to be the name of the vault override values in your helm_source_values_dir
+        install_values: 'vault.yaml'
+      postgres_operator:
+        install_name: 'postgres-operator'
+        install_namespace: 'postgres-operator'
+        chart_name: 'postgres-operator'
+        chart_version: '1.10.0'
+        repo_address: 'https://opensource.zalando.com/postgres-operator/charts/postgres-operator'
+        # this name needs to be the name of the postgres operator override values in your helm_source_values_dir
+        install_values: 'postgres-operator.yaml'
+
+    ###################################
+    ## dare.common.vault_init_config ##
+    ###################################
+
+    # namespace you've installed vault to.
+    # should match k3s_helm_install.vault.install_namespace
+    vault_namespace: "{{ k3s_helm_install.vault.install_namespace }}"
+    # name of the installed vault instance.
+    # should match k3s_helm_install.vault.install_name
+    vault_install_name: "{{ k3s_helm_install.vault.install_name }}"
+    # number of vault key shares to initialise it with
+    vault_number_key_shares: 5
+    # number of distinct keys required to unseal vault
+    vault_key_threshold: 3
+    # directory on ansible controller containing policy files that you want to upload.
+    # policy files must have the format "policyname.hcl", and when added to Vault the policy name will
+    # be the name of the file.
+    # e.g. a file called "admin.hcl" will result in a policy called "admin"
+    vault_policy_directory: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/vault_policies/"
+    # path on ansible controller where the vault root token and unseal keys can be saved.
+    # DO NOT COMMIT THIS FOLDER TO GIT.
+    vault_config_output_folder:  "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/vault"
+
+    # list of hosts (that are not this host) to configure vault k8s auth for.
+    # see ../microk8s_example/4-vault-configure.yaml for an example of how this should be structured.
+    hosts_configure_auth: []
+
+    ###############################
+    ## dare.common.argocd_deploy ##
+    ###############################
+
+    # namespace that argocd is deployed in
+    argocd_namespace: "{{ k3s_helm_install.argocd.install_namespace }}"
+    # list of repos to create as secrets for argocd to use
+    # currently only supports git and helm repos
+    # you need to add every git repo that argocd will look at, even if they don't require auth
+    repos:
+      - name: dare
+        url: "https://harbor.ukserp.ac.uk/chartrepo/dare"
+        type: "helm"
+        # optional username and password for this repo
+        # username: ""
+        # password: ""
+        # optional tls certificate and key data (useful if repo uses self-signed cert)
+        # tls_cert_data: ""
+        # tls_cert_key: ""
+        # optional proxy 
+        # proxy: "http://192.168.10.15:8080"
+      - name: teleport
+        type: "git"
+        url: "git@github.com:SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+        # optional path on controller to ssh private key for repo
+        # ssh_private_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/repo_key.pem"
+        # optional username and password for this repo
+        # username: ""
+        # password: ""
+        # optional proxy
+        # proxy: "http://192.168.10.15:8080"
+
+    # list of extra k8s clusters to configure argocd connection with
+    # not required for monolithic deployment, see ../microk8s_example/5-deploy-chart.yaml for example of use
+    clusters: []
+
+    # details about where the main teleport chart is deployed from
+    deployment_repo:
+      # url of the repo containing the teleport chart
+      url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+      # which branch to watch
+      target_revision: "HEAD"
+      # path to the teleport chart in the repo
+      # relative to the root of the repo defined in deployment_repo.url
+      path: "charts/deployment"
+      # path to the values file, DOES NOT have to be in the same repo as the teleport chart
+      # path to the values file is relative to the root of the repo defined in values_repo.url
+      path_to_values: "ansible/monolithic_mk8s_example/teleport-values.yaml"
+    # repo containing the override values for the teleport chart
+    values_repo:
+      # url of the repo containing chart override values
+      url: "https://github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment.git"
+      # which branch to watch
+      # ! if the chart and values are being deployed from the same repo (like they are here)
+      # ! then they need to be deployed off the same branch
+      target_revision: "HEAD"
+
+  roles:
+    # install and configure microk8s
+    - dare.common.microk8s
+
+    # deploy (via helm charts) k8s components that argo depends on
+    - dare.common.helm_install
+
+    # initialise the vault deployed in the previous role
+    - dare.common.vault_init_config
+
+    # deploy the teleport chart
+    - dare.common.argocd_deploy
+    
