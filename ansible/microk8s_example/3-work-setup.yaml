@@ -25,9 +25,9 @@
     create_argocd_admin_sa: true
     cluster_certs_output_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/work/"
 
-    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/helm_values/work/"
-    teleport_chart_directory: "../charts/deployment"
-    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/extra_manifests/work/'
+    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/helm_values/work/"
+    teleport_chart_directory: "../../charts/deployment"
+    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/extra_manifests/work/'
 
     k3s_helm_install:
       metallb:

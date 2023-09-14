@@ -1,0 +1,263 @@
+appTeleport:
+  enabled: true
+  # deploy the top-level teleport app to the mgmt cluster
+  address: https://kubernetes.default.svc
+  namespace: argocd
+  argocd:
+    namespace: argocd
+    project: default
+
+  source:
+    repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+    chart: teleport
+    # renovate: datasource=helm depName=teleport registryUrl=https://harbor.ukserp.ac.uk/chartrepo/dare
+    targetRevision: 1.5.1
+
+  values:
+
+    global:
+      namespacePrefix: dare
+      application:
+        # app cluster kube API address
+        address: https://192.168.69.202:16443
+        argocd:
+          namespace: argocd
+          project: default
+      management:
+        address: https://kubernetes.default.svc
+        argocd:
+          namespace: argocd
+          project: default
+      monitoring:
+        # mon cluster kube API address
+        address: https://192.168.69.201:16443
+        argocd:
+          namespace: argocd
+          project: default
+
+    appGuacamole:
+      enabled: false
+
+    appJupyter:
+      enabled: true
+      namespace: jupyter
+      source:
+        repoURL: https://hub.jupyter.org/helm-chart/
+        chart: jupyterhub
+        targetRevision: 3.0.2
+      values:
+        singleuser:
+          lifecycleHooks:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    /usr/local/bin/start-notebook.d/session_startup.sh
+          networkPolicy:
+            enabled: false
+          defaultUrl: "/lab"
+          extraEnv:
+            JUPYTERHUB_SINGLEUSER_APP: "jupyter_server.serverapp.ServerApp"
+            NEXUS_HTTP_SCHEME: "http"
+            NEXUS_PROXY_ADDR: "192.168.7.56:8081"
+          profileList:
+          - display_name: "basic image"
+            kubespawner_override:
+              image: "harbor.ukserp.ac.uk/dare/jupyter:1.1.5"
+
+    appTrino:
+      enabled: true
+      namespace: trino
+      source:
+        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        chart: trino
+        # renovate: datasource=helm depName=trino registryUrl=https://harbor.ukserp.ac.uk/chartrepo/dare
+        targetRevision: 1.3.0
+      values:
+        image:
+          repository: harbor.ukserp.ac.uk/dare/trino
+          tag: "1.0.1"
+
+        server:
+          workers: 2
+          config:
+            spillToDisk:
+              enabled: false
+            query:
+              maxMemory: "10GB"
+              # maxmemorypernode + heapHeadroomPerNode <= coordination|worker.jvm.maxheapsize
+              maxMemoryPerNode: "10GB"
+            memory:
+              heapHeadroomPerNode: "5GB"
+            https:
+              enabled: false
+          autoscaling:
+            enabled: true
+            maxReplicas: 60
+          coordinatorExtraConfig: |
+            http-server.process-forwarded=true
+            internal-communication.shared-secret=thisisdefinitelyasecret
+          workerExtraConfig: |
+            http-server.process-forwarded=true
+            internal-communication.shared-secret=thisisdefinitelyasecret
+
+        coordinator:
+          jvm:
+            maxHeapSize: "15G"
+
+        worker:
+          jvm:
+            maxHeapSize: "15G"
+
+        service:
+          type: LoadBalancer
+
+        additionalCatalogs:
+          minio: |
+            connector.name = hive
+            hive.metastore.uri = thrift://hive-metastore:9083
+            hive.metastore.thrift.delete-files-on-drop=true
+            hive.s3.path-style-access=true
+            hive.s3.endpoint=http://minio.dare-minio-tenant.svc.cluster.local:80
+            hive.s3.aws-access-key=06LVN2MwcfLzsFr7BZ
+            hive.s3.aws-secret-key=SrOMOsnLa8gTHWvEUk3hNxZP
+            hive.non-managed-table-writes-enabled=true
+            hive.s3select-pushdown.enabled=true
+            hive.storage-format=ORC
+            hive.allow-drop-table=true
+          iceberg: |
+            connector.name = hive
+            hive.metastore.uri = thrift://hive-metastore:9083
+            hive.metastore.thrift.delete-files-on-drop=true
+            hive.s3.path-style-access=true
+            hive.s3.endpoint=http://minio.dare-minio-tenant.svc.cluster.local:80
+            hive.s3.aws-access-key=06LVN2MwcfLzsFr7BZ
+            hive.s3.aws-secret-key=SrOMOsnLa8gTHWvEUk3hNxZP
+            hive.non-managed-table-writes-enabled=true
+            hive.s3select-pushdown.enabled=true
+            hive.storage-format=ORC
+            hive.allow-drop-table=true
+          # epcc: |
+          #   connector.name = trino
+          #   connection-url=jdbc:trino://trino.dare.epcc.dk.serp.ac.uk/tpcds/sf3000
+          #   connection-user=${ENV:trinoremote_username}
+          #   connection-password=${ENV:trinoremote_password}
+          #   join-pushdown.enabled=true
+          #   join-pushdown.strategy=EAGER
+          #   unsupported-type-handling=CONVERT_TO_VARCHAR
+
+        metrics:
+          enabled: false
+
+    appHive:
+      enabled: true
+      # hive needs to go into the trino namespace
+      namespace: trino
+      source:
+        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        chart: hive
+        targetRevision: 1.0.0
+      values:
+        image:
+          name: harbor.ukserp.ac.uk/dare/hive
+          tag: "1.0.0"
+
+        minio:
+          accessKey: 06LVN2MwcfLzsFr7BZ
+          secretKey: SrOMOsnLa8gTHWvEUk3hNxZP
+          endpoint: http://minio.dare-minio-tenant.svc.cluster.local:80
+
+        mysql:
+          architecture: replication
+          auth:
+            rootPassword: 'P4ssW0rd!1'
+            createDatabase: true
+            database: metastore_db
+            username: hive
+            password: 'H1v3P4ssW0rd!1'
+            replicationPassword: 'R3pl1c4t1onP4ssW0rd!1'
+
+          secondary:
+            replicaCount: 1
+
+          metrics:
+            enabled: false
+
+    appMinioTenant:
+      enabled: true
+      namespace: minio-tenant
+      source:
+        repoURL: https://operator.min.io/
+        chart: tenant
+        targetRevision: 5.0.6
+      values:
+        secrets:
+          name: tmp-minio-env-config
+          accessKey: "06LVN2MwcfLzsFr7BZ"
+          secretKey: "SrOMOsnLa8gTHWvEUk3hNxZP"
+
+        tenant:
+          name: dare-teleport
+          configuration:
+            name: tmp-minio-env-config
+
+          pools:
+            - servers: 1
+              name: pool-0
+              volumesPerServer: 1
+              size: 5Gi 
+              # storageClassName: ceph-block
+
+          metrics:
+            enabled: false
+
+          certificate:
+            requestAutoCert: false
+
+          prometheusOperator: false
+
+    appVault:
+      enabled: false
+
+    appOpa:
+      enabled: false
+
+    appControl:
+      enabled: false
+
+    appKeycloak:
+      enabled: true
+      namespace: keycloak
+      source:
+        repoURL: https://charts.bitnami.com/bitnami
+        chart: keycloak
+        targetRevision: 15.1.6
+
+    appPromStack:
+      enabled: true
+      namespace: monitoring
+      source:
+        repoURL: https://prometheus-community.github.io/helm-charts
+        chart: kube-prometheus-stack
+        targetRevision: 46.3.0
+
+    appLoki:
+      enabled: true
+      namespace: monitoring
+      source:
+        repoURL: https://grafana.github.io/helm-charts
+        chart: loki-stack
+        targetRevision: 2.9.10
+      values:
+        loki:
+          commonConfig:
+            replication_factor: 1
+          auth_enabled: false
+          storage:
+            type: 'filesystem'
+          test:
+            enabled: false
+          # need to specify this or it breaks Grafana
+          isDefault: false

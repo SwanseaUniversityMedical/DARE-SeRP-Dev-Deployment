@@ -21,9 +21,9 @@
     k3s_deploy_vault: true
     k3s_deploy_extra_manifests: true
 
-    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/helm_values/mgmt/"
-    teleport_chart_directory: "../charts/deployment"
-    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/extra_manifests/mgmt'
+    helm_source_values_dir: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/helm_values/mgmt/"
+    teleport_chart_directory: "../../charts/deployment"
+    extra_manifests_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/extra_manifests/mgmt'
     vault_config_output_folder: '/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/vault'
 
     harbor_dare_user: ""
@@ -60,5 +60,5 @@
         install_values: 'vault.yaml'
 
   roles:
-    # - dare.common.microk8s
+    - dare.common.microk8s
     - dare.common.helm_install
