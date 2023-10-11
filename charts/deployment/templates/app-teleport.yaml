@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .Release.name }}-app-teleport
+  name: {{ .Release.Name }}-app-teleport
   namespace: {{ .Values.appTeleport.argocd.namespace }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
