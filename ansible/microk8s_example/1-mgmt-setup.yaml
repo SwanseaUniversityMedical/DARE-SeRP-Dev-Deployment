@@ -7,6 +7,11 @@
       cert-manager: true
       hostpath-storage: true
 
+    # make sure this cert file is a root or intermediate CA that can sign csrs for the ingress paths you're planning 
+    # to use in your cluster.
+    cert_manager_tls_cert_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/certs/cert.crt"
+    cert_manager_tls_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/certs/cert.key"
+
     k3s_metallb_addresses: 
       - 192.168.69.210/29
 

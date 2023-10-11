@@ -12,6 +12,11 @@
       cert-manager: true
       hostpath-storage: true
 
+    # make sure this cert file is a root or intermediate CA that can sign csrs for the ingress paths you're planning 
+    # to use in your cluster.
+    cert_manager_tls_cert_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/certs/cert.crt"
+    cert_manager_tls_key_file: "/home/alex/DARE-SeRP-Dev-Deployment/ansible/microk8s_example/certs/cert.key"
+
     ##############################
     ## dare.common.helm_install ##
     ##############################
@@ -40,6 +45,11 @@
     k3s_deploy_minioop: true
     # whether to deploy Vault
     k3s_deploy_vault: true
+    # whether to deploy Vault Config Operator
+    # look at the vault_policies/work.hcl file to see what extra policy this requires
+    k3s_deploy_vault_config_operator: true
+    # whether to deploy Vault Secrets Operator
+    k3s_deploy_vault_secrets_operator: true
     # whether there are any extra manifests you want to deploy
     k3s_deploy_extra_manifests: false
 
@@ -91,6 +101,22 @@
         repo_address: 'https://opensource.zalando.com/postgres-operator/charts/postgres-operator'
         # this name needs to be the name of the postgres operator override values in your helm_source_values_dir
         install_values: 'postgres-operator.yaml'
+      vault_config_operator:
+        install_name: 'vault-config-operator'
+        install_namespace: 'vault-config-operator'
+        chart_name: 'vault-config-operator'
+        chart_version: '0.8.24'
+        repo_address: 'https://redhat-cop.github.io/vault-config-operator'
+        # this name needs to be the name of the vault conf op override values in your helm_source_values_dir
+        install_values: 'vault_conf_op.yaml'
+      vault_secrets_operator:
+        install_name: 'vault-secrets-operator'
+        install_namespace: 'vault'
+        chart_name: 'vault-secrets-operator'
+        chart_version: '0.2.0'
+        repo_address: 'https://helm.releases.hashicorp.com'
+        # this name needs to be the name of the vault secrets op override values in your helm_source_values_dir
+        install_values: 'vault_secrets_op.yaml'
 
     ###################################
     ## dare.common.vault_init_config ##
@@ -115,9 +141,18 @@
     # DO NOT COMMIT THIS FOLDER TO GIT.
     vault_config_output_folder:  "/home/alex/DARE-SeRP-Dev-Deployment/ansible/output/vault"
 
-    # list of hosts (that are not this host) to configure vault k8s auth for.
+    # list of hosts to configure vault k8s auth for.
+    # needs to include this host
     # see ../microk8s_example/4-vault-configure.yaml for an example of how this should be structured.
-    hosts_configure_auth: []
+    hosts_configure_auth: 
+      - name: single_host
+        vault_auth_path: kubernetes
+        roles:
+          - role_name: 'work-dare'
+            bound_sa_names: ["*"]
+            bound_sa_namespaces: ["*"]
+            token_ttl: "3600"
+            token_policies: ["work"]
 
     ###############################
     ## dare.common.argocd_deploy ##
@@ -188,4 +223,3 @@
 
     # deploy the teleport chart
     - dare.common.argocd_deploy
-    
