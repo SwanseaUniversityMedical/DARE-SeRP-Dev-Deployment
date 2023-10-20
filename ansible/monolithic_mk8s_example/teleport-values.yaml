@@ -55,7 +55,7 @@ appTeleport:
       source:
         repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
         chart: trino
-        targetRevision: 0.0.0-pr.63
+        targetRevision: 1.6.0
       values:
         image:
           repository: harbor.ukserp.ac.uk/dare/trino
