@@ -71,7 +71,7 @@ appTeleport:
               enabled: true
               properties:
                 access-control.name: "tech.stackable.trino.opa.OpaAuthorizer"
-                # This assumes that opa-operator is deployed in the same cluster as Trino, in a namespace called "opa-operator".
+                # This assumes that opa-operator is deployed in the same cluster as Trino, in a namespace called "dare-opa".
                 # If your opa operator is deployed in a different namespace, then you'll need to change this.
                 opa.policy.uri: "http://opa-cluster.dare-opa.svc.cluster.local:8081/v1/data/trino/allow"
                 security.refresh-period: "15s"
