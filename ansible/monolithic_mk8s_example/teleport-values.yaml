@@ -8,9 +8,9 @@ appTeleport:
     project: default
 
   source:
-    repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+    repoURL: https://harbor.ukserp.ac.uk/chart/dare
     chart: teleport
-    targetRevision: 1.5.1
+    targetRevision: 1.10.1
 
   values:
     appGuacamole:
@@ -53,7 +53,7 @@ appTeleport:
       enabled: true
       namespace: trino
       source:
-        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        repoURL: harbor.ukserp.ac.uk/chart/dare
         chart: trino
         targetRevision: 1.6.0
       values:
@@ -149,7 +149,7 @@ appTeleport:
       # hive needs to go into the trino namespace
       namespace: trino
       source:
-        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        repoURL: harbor.ukserp.ac.uk/chart/dare
         chart: hive
         targetRevision: 1.3.3
       values:
