@@ -8,9 +8,9 @@ appTeleport:
     project: default
 
   source:
-    repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+    repoURL: harbor.ukserp.ac.uk/dare/chart
     chart: teleport
-    # renovate: datasource=helm depName=teleport registryUrl=https://harbor.ukserp.ac.uk/chartrepo/dare
+    # renovate: datasource=docker depName=dare/chart/teleport registryUrl=https://harbor.ukserp.ac.uk
     targetRevision: 1.4.2
 
   # values:
