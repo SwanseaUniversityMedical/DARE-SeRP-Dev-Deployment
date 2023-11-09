@@ -8,9 +8,9 @@ appTeleport:
     project: default
 
   source:
-    repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+    repoURL: https://harbor.ukserp.ac.uk/chart/dare
     chart: teleport
-    targetRevision: 1.5.1
+    targetRevision: 1.10.1
 
   values:
     appGuacamole:
@@ -23,7 +23,7 @@ appTeleport:
       source:
         repoURL: https://hub.jupyter.org/helm-chart/
         chart: jupyterhub
-        targetRevision: 3.0.2
+        targetRevision: 3.1.0
       values:
         singleuser:
           lifecycleHooks:
@@ -45,25 +45,36 @@ appTeleport:
           profileList:
           - display_name: "basic image"
             kubespawner_override:
-              image: "harbor.ukserp.ac.uk/dare/jupyter:1.1.5"
+              image: "harbor.ukserp.ac.uk/dare/jupyter:pr-59-2f7bf0e"
+              default_url: '/lab'
+              cmd: ['jupyterhub-singleuser', '--ContentsManager.allow_hidden=True']
 
     appTrino:
       enabled: true
       namespace: trino
       source:
-        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        repoURL: harbor.ukserp.ac.uk/chart/dare
         chart: trino
-        targetRevision: 1.3.1
+        targetRevision: 1.6.0
       values:
         image:
           repository: harbor.ukserp.ac.uk/dare/trino
-          tag: "1.3.1"
+          tag: 1.5.0
 
         server:
           workers: 2
           config:
             spillToDisk:
               enabled: false
+            # THIS IS THE NEW SECTION
+            accessControl:
+              enabled: true
+              properties:
+                access-control.name: "tech.stackable.trino.opa.OpaAuthorizer"
+                # This assumes that opa-operator is deployed in the same cluster as Trino, in a namespace called "dare-opa".
+                # If your opa operator is deployed in a different namespace, then you'll need to change this.
+                opa.policy.uri: "http://opa-cluster.dare-opa.svc.cluster.local:8081/v1/data/trino/allow"
+                security.refresh-period: "15s"
             query:
               maxMemory: "2GB"
               # maxmemorypernode + heapHeadroomPerNode <= coordination|worker.jvm.maxheapsize
@@ -138,13 +149,13 @@ appTeleport:
       # hive needs to go into the trino namespace
       namespace: trino
       source:
-        repoURL: https://harbor.ukserp.ac.uk/chartrepo/dare
+        repoURL: harbor.ukserp.ac.uk/chart/dare
         chart: hive
-        targetRevision: 1.0.0
+        targetRevision: 1.3.3
       values:
         image:
           name: harbor.ukserp.ac.uk/dare/hive
-          tag: "1.0.0"
+          tag: "1.3.3"
 
         # In the below block, make sure you change these:
         # accessKey: 06LVN2MwcfLzsFr7BZ
@@ -209,9 +220,25 @@ appTeleport:
     appVault:
       enabled: false
 
-    # don't deploy OPA, not needed
+    # DO deploy OPA
     appOpa:
-      enabled: false
+      enabled: true
+      namespace: opa
+      source:
+        repoURL: harbor.ukserp.ac.uk/dare/chart
+        chart: opa
+        targetRevision: 1.4.6
+      values:
+        rules:
+          host.rego: |
+            package trino
+
+            import future.keywords.if
+            import future.keywords.in
+
+            # as this is a sample allow rule, it just lets anyone in
+            default allow := true
+
 
     # this app isn't complete yet
     appControl:
