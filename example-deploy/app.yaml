@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: serp-example-teleport
+  namespace: hiru-mgmt-argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: serp-example-teleport
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: serp-example-teleport
+  syncPolicy:
+    automated: # automated sync by default retries failed attempts 5 times with following delays between attempts ( 5s, 10s, 20s, 40s, 80s ); retry controlled using `retry` field.
+      prune: true # Specifies if resources should be pruned during auto-syncing ( false by default ).
+      selfHeal: true # Specifies if partial app sync should be executed when resources are changed only in target Kubernetes cluster and no git change detected ( false by default ).
+      allowEmpty: false # Allows deleting all application resources during automatic syncing ( false by default ).
+    syncOptions:     # Sync options which modifies sync behavior
+    - CreateNamespace=true # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.
+    - PruneLast=true # Allow the ability for resource pruning to happen as a final, implicit wave of a sync operation
+  sources:
+    - repoURL: git@github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment
+      targetRevision: feat_worked_argo_example
+      path: charts/deployment
+      helm:
+        valueFiles:
+        - $values/example-deploy/app_values.yaml
+        version: v3
+
+    - repoURL: git@github.com/SwanseaUniversityMedical/DARE-SeRP-Dev-Deployment
+      targetRevision: feat_worked_argo_example 
+      ref: values
